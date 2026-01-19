@@ -5,10 +5,20 @@ export const GoogleSheetsService = {
   
   async findOrCreateSpreadsheet(accessToken: string): Promise<string> {
     // 1. Search for existing file
-    const searchUrl = `https://www.googleapis.com/drive/v3/files?q=name='${SPREADSHEET_TITLE}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`;
+    const q = `name='${SPREADSHEET_TITLE}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`;
+    const searchUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`;
+    
     const searchRes = await fetch(searchUrl, {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
+
+    if (!searchRes.ok) {
+        console.error('Drive API Search Error:', searchRes.status, searchRes.statusText);
+        // Continue to try creating if search fails? No, better to throw.
+        const text = await searchRes.text();
+        throw new Error(`Drive API Error: ${text}`);
+    }
+
     const searchData = await searchRes.json();
 
     if (searchData.files && searchData.files.length > 0) {
@@ -16,7 +26,7 @@ export const GoogleSheetsService = {
     }
 
     // 2. Create new if not found
-    const createRes = await fetch('https://www.googleapis.com/sheets/v4/spreadsheets', {
+    const createRes = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
       method: 'POST',
       headers: { 
         Authorization: `Bearer ${accessToken}`,
@@ -29,6 +39,12 @@ export const GoogleSheetsService = {
         }]
       })
     });
+
+    if (!createRes.ok) {
+        const text = await createRes.text();
+        throw new Error(`Sheets API Create Error: ${text}`);
+    }
+
     const createData = await createRes.json();
     
     // Initialize headers
@@ -38,8 +54,9 @@ export const GoogleSheetsService = {
   },
 
   async appendRow(accessToken: string, spreadsheetId: string, values: string[]) {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Logs!A:A:append?valueInputOption=USER_ENTERED`;
-    await fetch(url, {
+    const range = encodeURIComponent('Logs!A:A:append');
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueInputOption=USER_ENTERED`;
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 
         Authorization: `Bearer ${accessToken}`,
@@ -49,6 +66,10 @@ export const GoogleSheetsService = {
         values: [values]
       })
     });
+
+    if (!res.ok) {
+        console.error('Append Error:', await res.text());
+    }
   },
 
   async loadData(accessToken: string): Promise<Record<string, Record<string, boolean>>> {
@@ -57,10 +78,16 @@ export const GoogleSheetsService = {
     // Cache ID for future writes
     localStorage.setItem('google_spreadsheet_id', spreadsheetId);
 
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Logs!A2:C`;
+    const range = encodeURIComponent('Logs!A2:C');
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`;
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
+    
+    if (!response.ok) {
+        throw new Error(`Load Data Error: ${await response.text()}`);
+    }
+
     const data = await response.json();
     
     const rows = data.values || [];
