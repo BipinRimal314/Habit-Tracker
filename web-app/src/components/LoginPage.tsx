@@ -9,34 +9,35 @@ export function LoginPage({ onLoginSuccess, isLoading = false }: LoginPageProps)
   const login = useGoogleLogin({
     onSuccess: onLoginSuccess,
     scope: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file',
-    flow: 'implicit' // or 'auth-code' if we had a backend, but 'implicit' gives us the access_token directly for client-side usage
+    flow: 'implicit'
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl text-center space-y-6">
+    <div className="min-h-screen bg-enfp-light dark:bg-enfp-dark flex flex-col items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white/80 dark:bg-enfp-dark/50 border border-white/20 dark:border-white/10 rounded-3xl p-8 shadow-xl backdrop-blur-md text-center space-y-8">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-cyan-600 dark:from-emerald-400 dark:to-cyan-400 bg-clip-text text-transparent">
-            Polymath Protocol
+          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-enfp-primary to-enfp-accent bg-clip-text text-transparent tracking-tight">
+            Sparkle Habits
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 font-mono text-sm">
-            Restricted Access
+          <p className="text-enfp-muted dark:text-enfp-muted/80 mt-2 font-bold tracking-widest text-xs uppercase">
+            Your Happy Path to Growth
           </p>
         </div>
 
-        <div className="py-8">
-          <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full mx-auto flex items-center justify-center mb-4 text-2xl">
-            🔒
+        <div className="py-4">
+          <div className="w-20 h-20 bg-gradient-to-br from-enfp-secondary/20 to-enfp-primary/20 rounded-full mx-auto flex items-center justify-center mb-6 text-4xl shadow-inner animate-bounce-fast">
+            💖
           </div>
-          <p className="text-slate-600 dark:text-slate-300">
-            Sign in with Google to access your habit data stored in your personal Cloud.
+          <p className="text-enfp-text dark:text-enfp-text-dark font-medium leading-relaxed">
+            Welcome! Let's track your journey with joy. <br/>
+            Sign in to sync your sparkle across devices.
           </p>
         </div>
 
         <button
           onClick={() => login()}
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-3 bg-white dark:bg-white/10 text-enfp-text dark:text-white border-2 border-enfp-muted/20 dark:border-white/10 hover:border-enfp-primary hover:text-enfp-primary dark:hover:border-enfp-primary dark:hover:text-enfp-primary font-bold py-4 px-4 rounded-2xl transition-all duration-300 shadow-sm hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-1"
         >
           {isLoading ? (
             <span className="animate-pulse">Connecting...</span>
@@ -48,8 +49,8 @@ export function LoginPage({ onLoginSuccess, isLoading = false }: LoginPageProps)
           )}
         </button>
 
-        <p className="text-xs text-slate-400 dark:text-slate-500">
-          This app requires access to manage a specific spreadsheet in your Google Drive.
+        <p className="text-xs text-enfp-muted/60 dark:text-enfp-muted/40">
+          We only access the specific spreadsheet we create for you. Your data is yours.
         </p>
       </div>
     </div>

@@ -8,14 +8,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        cyber: {
-          dark: '#0f172a',
-          light: '#1e293b',
-          accent: '#0ea5e9', // Sky blue
-          success: '#10b981', // Emerald
-          danger: '#ef4444', // Red
-          text: '#f1f5f9', // Slate 100
-          muted: '#94a3b8', // Slate 400
+        enfp: {
+          dark: '#2e1065', // deep violet (indigo-950 equivalent-ish but warmer)
+          light: '#fff7ed', // orange-50 (warm white)
+          primary: '#fb7185', // rose-400
+          secondary: '#fcd34d', // amber-300
+          accent: '#a78bfa', // violet-400
+          success: '#34d399', // emerald-400 (softer)
+          danger: '#f87171', // red-400 (softer)
+          text: '#4c0519', // rose-950 (warm dark text)
+          'text-dark': '#fce7f3', // pink-100 (warm light text)
+          muted: '#9ca3af', // gray-400
         }
       },
       fontFamily: {

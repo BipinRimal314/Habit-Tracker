@@ -15,25 +15,25 @@ export const Heatmap: React.FC<HeatmapProps> = ({ completions, totalHabitsCount 
 
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="text-xs font-mono text-slate-500 uppercase tracking-widest">Consistency Grid</h3>
-      <div className="flex gap-1">
+      <h3 className="text-xs font-bold text-enfp-muted uppercase tracking-widest pl-1">Consistency Love</h3>
+      <div className="flex gap-1.5 overflow-x-auto pb-2">
         {days.map(date => {
           const dayData = completions[date] || {};
           const count = Object.values(dayData).filter(Boolean).length;
           const intensity = Math.min(count / totalHabitsCount, 1);
           
-          let colorClass = 'bg-slate-200 dark:bg-slate-800';
-          if (count > 0) colorClass = 'bg-emerald-200 dark:bg-emerald-900';
-          if (intensity > 0.3) colorClass = 'bg-emerald-300 dark:bg-emerald-700';
-          if (intensity > 0.6) colorClass = 'bg-emerald-400 dark:bg-emerald-500';
-          if (intensity > 0.9) colorClass = 'bg-emerald-500 dark:bg-emerald-400';
+          let colorClass = 'bg-enfp-muted/20 dark:bg-white/5';
+          if (count > 0) colorClass = 'bg-rose-300 dark:bg-rose-900/60';
+          if (intensity > 0.3) colorClass = 'bg-rose-400 dark:bg-rose-800/80';
+          if (intensity > 0.6) colorClass = 'bg-enfp-primary dark:bg-rose-600'; // rose-500
+          if (intensity > 0.9) colorClass = 'bg-rose-600 dark:bg-rose-500';
 
           return (
             <div 
               key={date}
               title={`${date}: ${count} habits`}
-              className={`w-3 h-8 rounded-sm transition-all duration-300 ${colorClass}`}
-              style={{ opacity: count === 0 ? 0.5 : 1 }}
+              className={`w-4 h-10 rounded-full transition-all duration-300 ${colorClass} hover:scale-110`}
+              style={{ opacity: count === 0 ? 0.4 : 1 }}
             />
           );
         })}

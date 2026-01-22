@@ -14,7 +14,7 @@ export interface Track {
   color: string;
 }
 
-export const tracks: Track[] = [
+export const defaultTracks: Track[] = [
   { id: 'ml', title: 'Machine Learning', color: 'text-purple-400' },
   { id: 'music', title: 'Music (Piano & Vocal)', color: 'text-pink-400' },
   { id: 'body', title: 'Body (Dance & Calisthenics)', color: 'text-orange-400' },

@@ -9,9 +9,10 @@ interface TrackSectionProps {
   onToggle: (habitId: string) => void;
   onAdd: (title: string, duration: string, description: string) => void;
   onDelete: (habitId: string) => void;
+  onDeleteTrack?: (trackId: string) => void;
 }
 
-export const TrackSection: React.FC<TrackSectionProps> = ({ track, habits, completedHabits, onToggle, onAdd, onDelete }) => {
+export const TrackSection: React.FC<TrackSectionProps> = ({ track, habits, completedHabits, onToggle, onAdd, onDelete, onDeleteTrack }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDuration, setNewDuration] = useState('');
@@ -32,26 +33,69 @@ export const TrackSection: React.FC<TrackSectionProps> = ({ track, habits, compl
     }
   };
 
-  // Map the tailwind text colors to something visible in light mode
-  // e.g. text-purple-400 -> text-purple-600 in light mode
-  const getLightColor = (colorClass: string) => {
-    return colorClass.replace('400', '600');
+  // Explicit map for Tailwind to scan
+  const bgMap: Record<string, string> = {
+    'text-purple-400': 'bg-purple-400',
+    'text-pink-400': 'bg-pink-400',
+    'text-orange-400': 'bg-orange-400',
+    'text-emerald-400': 'bg-emerald-400',
+    'text-blue-400': 'bg-blue-400',
+    'text-cyan-400': 'bg-cyan-400',
+    'text-red-400': 'bg-red-400',
+    'text-yellow-400': 'bg-yellow-400',
+    'text-enfp-primary': 'bg-enfp-primary',
+    'text-enfp-secondary': 'bg-enfp-secondary',
+    'text-enfp-accent': 'bg-enfp-accent',
+    'text-enfp-success': 'bg-enfp-success',
+    'text-enfp-danger': 'bg-enfp-danger',
   };
 
+  const textLightMap: Record<string, string> = {
+    'text-purple-400': 'text-purple-600',
+    'text-pink-400': 'text-pink-600',
+    'text-orange-400': 'text-orange-600',
+    'text-emerald-400': 'text-emerald-600',
+    'text-blue-400': 'text-blue-600',
+    'text-cyan-400': 'text-cyan-600',
+    'text-red-400': 'text-red-600',
+    'text-yellow-400': 'text-yellow-600',
+    'text-enfp-primary': 'text-enfp-primary',
+    'text-enfp-secondary': 'text-amber-500', // darker amber for text
+    'text-enfp-accent': 'text-violet-600',
+    'text-enfp-success': 'text-emerald-600',
+    'text-enfp-danger': 'text-red-600',
+  };
+
+  const bgColor = bgMap[track.color] || 'bg-enfp-muted';
+  const lightTextColor = textLightMap[track.color] || 'text-enfp-text';
+
   return (
-    <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className={`text-xl font-bold tracking-tight flex items-center gap-2 ${getLightColor(track.color)} dark:${track.color}`}>
-          {track.title}
-        </h2>
+    <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 group/track">
+      <div className="flex items-center justify-between mb-4 px-2">
         <div className="flex items-center gap-2">
-          <div className="h-1.5 w-24 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+          <h2 className={`text-xl font-black tracking-tight flex items-center gap-2 ${lightTextColor} dark:${track.color}`}>
+            {track.title}
+          </h2>
+          {onDeleteTrack && (
+            <button
+              onClick={() => onDeleteTrack(track.id)}
+              className="opacity-0 group-hover/track:opacity-100 transition-opacity text-enfp-muted hover:text-enfp-danger p-1"
+              title="Delete Track"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-24 bg-enfp-muted/20 dark:bg-white/10 rounded-full overflow-hidden">
             <div 
-              className={`h-full transition-all duration-500 ease-out ${track.color.replace('text-', 'bg-')}`} 
+              className={`h-full transition-all duration-500 ease-out ${bgColor}`} 
               style={{ width: `${percentage}%` }}
             />
           </div>
-          <span className="text-xs font-mono text-slate-400 dark:text-slate-500">{progress}/{total}</span>
+          <span className="text-xs font-bold text-enfp-muted">{progress}/{total}</span>
         </div>
       </div>
       
@@ -69,43 +113,43 @@ export const TrackSection: React.FC<TrackSectionProps> = ({ track, habits, compl
 
         {/* Add New Button / Form */}
         {isAdding ? (
-          <form onSubmit={handleSubmit} className="rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30 p-4 flex flex-col gap-2">
+          <form onSubmit={handleSubmit} className="rounded-2xl border-2 border-dashed border-enfp-muted/30 bg-white/40 dark:bg-white/5 p-4 flex flex-col gap-3">
             <input 
               autoFocus
               type="text" 
               placeholder="Habit Title" 
-              className="bg-transparent border-b border-slate-300 dark:border-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-slate-500 pb-1"
+              className="bg-transparent border-b-2 border-enfp-muted/20 text-sm font-bold text-enfp-text dark:text-enfp-text-dark focus:outline-none focus:border-enfp-primary pb-1 placeholder:font-normal"
               value={newTitle}
               onChange={e => setNewTitle(e.target.value)}
             />
             <div className="flex gap-2">
               <input 
                 type="text" 
-                placeholder="Time (e.g. 5m)" 
-                className="bg-transparent border-b border-slate-300 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-400 focus:outline-none focus:border-slate-500 pb-1 w-1/3"
+                placeholder="Time" 
+                className="bg-transparent border-b-2 border-enfp-muted/20 text-xs text-enfp-text dark:text-enfp-text-dark focus:outline-none focus:border-enfp-primary pb-1 w-1/3"
                 value={newDuration}
                 onChange={e => setNewDuration(e.target.value)}
               />
               <input 
                 type="text" 
                 placeholder="Description (opt)" 
-                className="bg-transparent border-b border-slate-300 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-400 focus:outline-none focus:border-slate-500 pb-1 flex-1"
+                className="bg-transparent border-b-2 border-enfp-muted/20 text-xs text-enfp-text dark:text-enfp-text-dark focus:outline-none focus:border-enfp-primary pb-1 flex-1"
                 value={newDesc}
                 onChange={e => setNewDesc(e.target.value)}
               />
             </div>
-            <div className="flex justify-end gap-2 mt-2">
+            <div className="flex justify-end gap-2 mt-1">
               <button 
                 type="button"
                 onClick={() => setIsAdding(false)}
-                className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                className="text-xs font-bold text-enfp-muted hover:text-enfp-text transition-colors"
               >
                 Cancel
               </button>
               <button 
                 type="submit"
                 disabled={!newTitle || !newDuration}
-                className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded disabled:opacity-50"
+                className="text-xs font-bold bg-enfp-text dark:bg-white text-white dark:text-enfp-dark px-3 py-1.5 rounded-lg disabled:opacity-50 hover:scale-105 transition-transform"
               >
                 Add
               </button>
@@ -114,10 +158,10 @@ export const TrackSection: React.FC<TrackSectionProps> = ({ track, habits, compl
         ) : (
           <button 
             onClick={() => setIsAdding(true)}
-            className="flex flex-col items-center justify-center min-h-[100px] rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/20 text-slate-400 dark:text-slate-600 hover:text-slate-600 dark:hover:text-slate-400 hover:border-slate-400 dark:hover:border-slate-600 transition-all duration-200 group"
+            className="flex flex-col items-center justify-center min-h-[100px] rounded-2xl border-2 border-dashed border-enfp-muted/20 hover:border-enfp-primary/50 bg-white/30 dark:bg-white/5 text-enfp-muted hover:text-enfp-primary transition-all duration-200 group"
           >
-            <span className="text-2xl mb-1 group-hover:scale-110 transition-transform">+</span>
-            <span className="text-xs font-mono uppercase tracking-wider">Add Habit</span>
+            <span className="text-3xl mb-1 group-hover:scale-110 transition-transform">✨</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Add Habit</span>
           </button>
         )}
       </div>

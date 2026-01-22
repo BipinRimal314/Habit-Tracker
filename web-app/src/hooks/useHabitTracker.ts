@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { Habit, TrackId } from '../data/habits';
-import { habits as defaultHabits } from '../data/habits';
+import type { Habit, Track, TrackId } from '../data/habits';
+import { habits as defaultHabits, defaultTracks } from '../data/habits';
 import { useAuth } from '../context/AuthContext';
 import { GoogleSheetsService } from '../services/googleSheets';
 
@@ -9,11 +9,13 @@ type CompletionMap = Record<string, Record<string, boolean>>;
 
 const STORAGE_KEY_COMPLETIONS = 'polymath-habit-tracker-v1';
 const STORAGE_KEY_HABITS = 'polymath-habit-definitions-v1';
+const STORAGE_KEY_TRACKS = 'polymath-track-definitions-v1';
 
 export function useHabitTracker() {
   const { accessToken } = useAuth();
   const [completions, setCompletions] = useState<CompletionMap>({});
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from local storage on mount
@@ -40,6 +42,20 @@ export function useHabitTracker() {
     } else {
       setHabits(defaultHabits);
     }
+
+    // Load tracks
+    const savedTracks = localStorage.getItem(STORAGE_KEY_TRACKS);
+    if (savedTracks) {
+      try {
+        setTracks(JSON.parse(savedTracks));
+      } catch (e) {
+        console.error("Failed to parse tracks", e);
+        setTracks(defaultTracks);
+      }
+    } else {
+      setTracks(defaultTracks);
+    }
+
     setIsLoaded(true);
   }, []);
 
@@ -70,6 +86,11 @@ export function useHabitTracker() {
     if (!isLoaded) return;
     localStorage.setItem(STORAGE_KEY_HABITS, JSON.stringify(habits));
   }, [habits, isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    localStorage.setItem(STORAGE_KEY_TRACKS, JSON.stringify(tracks));
+  }, [tracks, isLoaded]);
 
   const getTodayDate = () => {
     const d = new Date();
@@ -121,6 +142,22 @@ export function useHabitTracker() {
     }
   };
 
+  const addTrack = (title: string, color: string) => {
+    const newTrack: Track = {
+      id: `track-${Date.now()}` as TrackId,
+      title,
+      color
+    };
+    setTracks(prev => [...prev, newTrack]);
+  };
+
+  const removeTrack = (trackId: string) => {
+    if (window.confirm('Are you sure? This will delete the track AND all its habits.')) {
+      setTracks(prev => prev.filter(t => t.id !== trackId));
+      setHabits(prev => prev.filter(h => h.trackId !== trackId));
+    }
+  };
+
   const isCompleted = (habitId: string, date: string = getTodayDate()) => {
     return !!completions[date]?.[habitId];
   };
@@ -134,10 +171,13 @@ export function useHabitTracker() {
 
   return {
     habits,
+    tracks,
     completions,
     toggleHabit,
     addHabit,
     removeHabit,
+    addTrack,
+    removeTrack,
     isCompleted,
     getCompletionCount,
     getTodayDate
